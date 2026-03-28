@@ -2,7 +2,6 @@ import cv2
 import numpy as np
 
 def track_with_coordinates():
-    # Загрузка шаблона метки
     template = cv2.imread('ref-point.jpg')
     
     h, w = template.shape[:2]
