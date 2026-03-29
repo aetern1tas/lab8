@@ -14,9 +14,6 @@ def track_with_coordinates():
     fly_mask = fly_alpha / 255.0
     
     cap = cv2.VideoCapture(0)
-    if not cap.isOpened():
-        print("Ошибка: камера не работает")
-        return
     
     while True:
         ret, frame = cap.read()
