@@ -13,7 +13,16 @@ def track_with_coordinates():
     fly_b, fly_g, fly_r, fly_alpha = cv2.split(fly)
     fly_mask = fly_alpha / 255.0
     
-    cap = cv2.VideoCapture(0)
+    cap = None
+    for i in range(3): 
+        cap = cv2.VideoCapture(i)
+        if cap.isOpened():
+            break
+        else:
+            cap.release()
+    
+    if not cap or not cap.isOpened():
+        return
     
     while True:
         ret, frame = cap.read()
@@ -51,18 +60,19 @@ def track_with_coordinates():
             fly_x = center_x - fly_w // 2
             fly_y = center_y - fly_h // 2
             
-            roi = frame[fly_y:fly_y + fly_h, fly_x:fly_x + fly_w]
+            fly_place = frame[fly_y:fly_y + fly_h, fly_x:fly_x + fly_w]
             
             for c in range(3):
-                roi[:, :, c] = (roi[:, :, c] * (1 - fly_mask) + 
+                fly_place[:, :, c] = (fly_place[:, :, c] * (1 - fly_mask) + 
                                fly[:, :, c] * fly_mask).astype(np.uint8)
             
-            frame[fly_y:fly_y + fly_h, fly_x:fly_x + fly_w] = roi
+            frame[fly_y:fly_y + fly_h, fly_x:fly_x + fly_w] = fly_place
             
-            cv2.putText(frame, f"Fly at ({center_x}, {center_y})", 
-                       (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 0), 1)
         
-        cv2.imshow('Поиск метки с мухой', frame)
+        cv2.imshow('Poisk metki s muxoi', frame)
+
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break        
     
     cap.release()
     cv2.destroyAllWindows()
