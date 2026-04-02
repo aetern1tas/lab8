@@ -13,20 +13,20 @@ def track_with_coordinates():
     fly_b, fly_g, fly_r, fly_alpha = cv2.split(fly)
     fly_mask = fly_alpha / 255.0
     
-    cap = None
+    cam = None
     for i in range(3): 
-        cap = cv2.VideoCapture(i)
-        if cap.isOpened():
+        cam = cv2.VideoCapture(i)
+        if cam.isOpened():
             break
         else:
-            cap.release()
+            cam.release()
     
-    if not cap or not cap.isOpened():
+    if not cam or not cam.isOpened():
         return
     
     while True:
-        ret, frame = cap.read()
-        if not ret:
+        flag, frame = cam.read()
+        if not flag:
             break
         
         res = cv2.matchTemplate(frame, template, cv2.TM_CCOEFF_NORMED)
@@ -36,22 +36,21 @@ def track_with_coordinates():
         x, y = 0, 0
         center_x, center_y = 0, 0
         
-        for pt in zip(*loc[::-1]):
+        for xy in zip(*loc[::-1]):
             found = True
-            x, y = pt[0], pt[1]
+            x, y = xy[0], xy[1]
             center_x = x + w // 2
             center_y = y + h // 2
             
-            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (56, 25, 34), 2)
             
-            cv2.circle(frame, (center_x, center_y), 5, (0, 0, 255), -1)
             break
         
         if found:
             text = f"X={x}, Y={y}"
             color = (0, 255, 0)
         else:
-            text = "Метка не найдена"
+            text = "Poisk metki"
             color = (0, 0, 255)
         
         cv2.putText(frame, text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
@@ -67,14 +66,14 @@ def track_with_coordinates():
                                fly[:, :, c] * fly_mask).astype(np.uint8)
             
             frame[fly_y:fly_y + fly_h, fly_x:fly_x + fly_w] = fly_place
-            
+
         
         cv2.imshow('Poisk metki s muxoi', frame)
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        if cv2.waitKey(1) == ord('q'):
             break        
     
-    cap.release()
+    cam.release()
     cv2.destroyAllWindows()
 
 
